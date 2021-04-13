@@ -1,0 +1,21 @@
+.form {
+  margin: 20px 0;
+  padding: 20px;
+  width: 350px;
+  border: 1px solid black;
+}
+.input {
+  margin: 0 0 20px 0;
+  display: block;
+}
+
+.addButton {
+  margin: 0 0 0 auto;
+  min-height: 20px;
+  min-width: 80px;
+  border-radius: 5px;
+}
+.addButton:hover {
+  cursor: pointer;
+  outline: 1px solid black;
+}
