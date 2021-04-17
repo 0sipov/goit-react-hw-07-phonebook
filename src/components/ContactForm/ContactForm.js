@@ -2,15 +2,12 @@ import React, { Component } from 'react';
 import styles from './ContactForm.module.css';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { createContact } from '../../redux/contacts/contacts-actions';
+import { createContact } from '../../redux/contacts/contacts-operations';
+import contactsSelectors from '../../redux/contacts/contacts-selectors';
 
 class ContactForm extends Component {
   state = {
     contact: { name: '', number: '' },
-  };
-
-  static propTypes = {
-    onCreateContact: PropTypes.func,
   };
 
   handleChange = e => {
@@ -23,9 +20,7 @@ class ContactForm extends Component {
 
   isContainName = name => {
     name = name.toLowerCase();
-    return this.props.state.contacts.items.find(
-      e => e.name.toLowerCase() === name,
-    );
+    return this.props.items.find(e => e.name.toLowerCase() === name);
   };
 
   clearContactInput = () =>
@@ -74,10 +69,16 @@ class ContactForm extends Component {
   }
 }
 
-const mapStateToProps = state => ({ state });
+const mapStateToProps = state => ({
+  items: contactsSelectors.getItems(state),
+});
 
 const mapDispatchToProps = dispatch => {
   return { onCreateContact: contact => dispatch(createContact(contact)) };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ContactForm);
+
+ContactForm.propTypes = {
+  onCreateContact: PropTypes.func,
+};

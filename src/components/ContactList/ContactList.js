@@ -1,54 +1,71 @@
-import React from 'react';
+import React, { Component } from 'react';
 import styles from './ContactList.module.css';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { removeContact } from '../../redux/contacts/contacts-actions';
+import {
+  removeContact,
+  fetchContacts,
+} from '../../redux/contacts/contacts-operations';
+import contactsSelectors from '../../redux/contacts/contacts-selectors';
 
-const ContactList = props => {
-  const { filtredContacts, onRemoveContact } = props;
-  return (
-    <ul className={styles.contacts}>
-      {filtredContacts.map(elem => {
-        return (
-          <li className={styles.contact} key={elem.id}>
-            <p>
-              {elem.name}: {elem.number}
-            </p>
-            <button
-              className={styles.removeButton}
-              type="button"
-              onClick={() => {
-                onRemoveContact(elem.id);
-              }}
-            >
-              Delete
-            </button>
-          </li>
-        );
-      })}
-    </ul>
-  );
-};
+class ContactList extends Component {
+  componentDidMount() {
+    this.props.fetchContacts();
+  }
 
-ContactList.propTypes = {
-  onRemoveContact: PropTypes.func,
-  filtredContacts: PropTypes.arrayOf(PropTypes.objectOf(PropTypes.string)),
-};
-
-const filterContacts = (filter, contacts) => {
-  const normalizedFilter = filter.toLowerCase();
-  const filtredContacts = contacts.filter(contact =>
-    contact.name.toLowerCase().includes(normalizedFilter),
-  );
-  return filtredContacts;
-};
+  render() {
+    const { filtredContacts, onRemoveContact, isLoading } = this.props;
+    return (
+      <ul className={styles.contacts}>
+        {filtredContacts.map(elem => {
+          return (
+            <li className={styles.contact} key={elem.id}>
+              <p>
+                {elem.name}: {elem.number}
+              </p>
+              <button
+                className={styles.removeButton}
+                type="button"
+                onClick={() => {
+                  onRemoveContact(elem.id);
+                }}
+              >
+                Delete
+              </button>
+            </li>
+          );
+        })}
+        {isLoading && <h2>Loading...</h2>}
+      </ul>
+    );
+  }
+}
 
 const mapStateToProps = state => ({
-  filtredContacts: filterContacts(state.contacts.filter, state.contacts.items),
+  isLoading: contactsSelectors.getLoading(state),
+  filtredContacts: contactsSelectors.getFiltredContacts(state),
 });
 
 const mapDispatchToProps = dispatch => {
-  return { onRemoveContact: contactId => dispatch(removeContact(contactId)) };
+  return {
+    onRemoveContact: contactId => {
+      return dispatch(removeContact(contactId));
+    },
+    fetchContacts: () => {
+      return dispatch(fetchContacts());
+    },
+  };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ContactList);
+
+ContactList.propTypes = {
+  onRemoveContact: PropTypes.func,
+  filtredContacts: PropTypes.arrayOf(
+    PropTypes.shape({
+      name: PropTypes.string,
+      number: PropTypes.string,
+      id: PropTypes.number,
+    }),
+  ),
+};

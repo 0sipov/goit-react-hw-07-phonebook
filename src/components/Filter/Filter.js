@@ -3,9 +3,10 @@ import styles from './Filter.module.css';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { filterUpdate } from '../../redux/contacts/contacts-actions';
+import contactsSelectors from '../../redux/contacts/contacts-selectors';
 
 const Filter = props => {
-  const { filterUpdate, state } = props;
+  const { filterUpdate, filter } = props;
   return (
     <label>
       Find contacts by name
@@ -13,21 +14,23 @@ const Filter = props => {
         className={styles.input}
         name="filter"
         type="text"
-        value={state.filter}
+        value={filter}
         onChange={e => filterUpdate(e.target.value)}
       />
     </label>
   );
 };
 
-Filter.propTypes = {
-  onChangeFilter: PropTypes.func,
-};
-
-const mapStateToProps = state => ({ state });
+const mapStateToProps = state => ({
+  filter: contactsSelectors.getFilter(state),
+});
 
 const mapDispatchToProps = dispatch => {
   return { filterUpdate: contactName => dispatch(filterUpdate(contactName)) };
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Filter);
+
+Filter.propTypes = {
+  onChangeFilter: PropTypes.func,
+};

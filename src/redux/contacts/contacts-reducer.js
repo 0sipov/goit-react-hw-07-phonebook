@@ -1,50 +1,48 @@
 import { createReducer } from '@reduxjs/toolkit';
 import { combineReducers } from 'redux';
-import { createContact, removeContact, filterUpdate } from './contacts-actions';
-// import {
-//   CREATE_CONTACT,
-//   REMOVE_CONTACT,
-//   FILTER_UPDATE,
-// } from './contacts-action-types';
+import {
+  addContactRequest,
+  addContactSuccess,
+  addContactError,
+  filterUpdate,
+  removeContactRequest,
+  removeContactSuccess,
+  removeContactError,
+  fetchContactsRequest,
+  fetchContactsSuccess,
+  fetchContactsError,
+} from './contacts-actions';
 
 const itemsReducer = createReducer([], {
-  [createContact]: (state, { payload }) => [...state, payload],
-  [removeContact]: (state, { payload }) => state.filter(e => e.id !== payload),
+  [fetchContactsSuccess]: (_, { payload }) => payload,
+  [addContactSuccess]: (state, { payload }) => {
+    return [...state, payload];
+  },
+  [removeContactSuccess]: (state, { payload }) => {
+    return state.filter(e => e.id !== payload);
+  },
+});
+
+const loadingReducer = createReducer(false, {
+  [fetchContactsRequest]: () => true,
+  [fetchContactsSuccess]: () => false,
+  [fetchContactsError]: () => false,
+
+  [addContactRequest]: () => true,
+  [addContactSuccess]: () => false,
+  [addContactError]: () => false,
+
+  [removeContactRequest]: () => true,
+  [removeContactSuccess]: () => false,
+  [removeContactError]: () => false,
 });
 
 const filterReducer = createReducer('', {
   [filterUpdate]: (_, { payload }) => payload,
 });
 
-//VANILLA REDUX
-
-// const itemsReducer = (state = [], { type, payload }) => {
-//   switch (type) {
-//     case CREATE_CONTACT:
-//       return [
-//         ...state,
-//         { name: payload.name, id: payload.id, number: payload.number },
-//       ];
-//     case REMOVE_CONTACT:
-//       const newContacts = state.filter(e => {
-//         return e.id !== payload;
-//       });
-//       return newContacts;
-//     default:
-//       return state;
-//   }
-// };
-
-// const filterReducer = (state = '', { type, payload }) => {
-//   switch (type) {
-//     case FILTER_UPDATE:
-//       return payload;
-//     default:
-//       return state;
-//   }
-// };
-
 export default combineReducers({
   items: itemsReducer,
+  loading: loadingReducer,
   filter: filterReducer,
 });
